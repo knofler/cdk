@@ -1,0 +1,691 @@
+Resources:
+  MediLivebucketE1A6D894:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediLivebucket/Resource
+  MediaLiveVPCFE765DC8:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.1.0.0/21
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/Resource
+  MediaLiveVPCIngressSubnet1Subnet6965F66A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.0.0/26
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/IngressSubnet1
+        - Key: aws-cdk:subnet-name
+          Value: Ingress
+        - Key: aws-cdk:subnet-type
+          Value: Public
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/IngressSubnet1/Subnet
+  MediaLiveVPCIngressSubnet1RouteTableA53A5C7E:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/IngressSubnet1
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/IngressSubnet1/RouteTable
+  MediaLiveVPCIngressSubnet1RouteTableAssociation0B093FC6:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: MediaLiveVPCIngressSubnet1RouteTableA53A5C7E
+      SubnetId:
+        Ref: MediaLiveVPCIngressSubnet1Subnet6965F66A
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/IngressSubnet1/RouteTableAssociation
+  MediaLiveVPCIngressSubnet1DefaultRoute2626745C:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: MediaLiveVPCIngressSubnet1RouteTableA53A5C7E
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: MediaLiveVPCIGWBA3C9E6B
+    DependsOn:
+      - MediaLiveVPCVPCGW1810A685
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/IngressSubnet1/DefaultRoute
+  MediaLiveVPCIngressSubnet1EIP44801D0B:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/IngressSubnet1/EIP
+  MediaLiveVPCIngressSubnet1NATGateway415D858D:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - MediaLiveVPCIngressSubnet1EIP44801D0B
+          - AllocationId
+      SubnetId:
+        Ref: MediaLiveVPCIngressSubnet1Subnet6965F66A
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/IngressSubnet1
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/IngressSubnet1/NATGateway
+  MediaLiveVPCIngressSubnet2Subnet00776CE0:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.0.64/26
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/IngressSubnet2
+        - Key: aws-cdk:subnet-name
+          Value: Ingress
+        - Key: aws-cdk:subnet-type
+          Value: Public
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/IngressSubnet2/Subnet
+  MediaLiveVPCIngressSubnet2RouteTable9D75A279:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/IngressSubnet2
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/IngressSubnet2/RouteTable
+  MediaLiveVPCIngressSubnet2RouteTableAssociation1BEF963C:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: MediaLiveVPCIngressSubnet2RouteTable9D75A279
+      SubnetId:
+        Ref: MediaLiveVPCIngressSubnet2Subnet00776CE0
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/IngressSubnet2/RouteTableAssociation
+  MediaLiveVPCIngressSubnet2DefaultRoute33DA84E8:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: MediaLiveVPCIngressSubnet2RouteTable9D75A279
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: MediaLiveVPCIGWBA3C9E6B
+    DependsOn:
+      - MediaLiveVPCVPCGW1810A685
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/IngressSubnet2/DefaultRoute
+  MediaLiveVPCApplicationSubnet1SubnetCCF12457:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.1.0/24
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/ApplicationSubnet1
+        - Key: aws-cdk:subnet-name
+          Value: Application
+        - Key: aws-cdk:subnet-type
+          Value: Private
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/ApplicationSubnet1/Subnet
+  MediaLiveVPCApplicationSubnet1RouteTableBFDB8F39:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/ApplicationSubnet1
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/ApplicationSubnet1/RouteTable
+  MediaLiveVPCApplicationSubnet1RouteTableAssociation31AC7F4B:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: MediaLiveVPCApplicationSubnet1RouteTableBFDB8F39
+      SubnetId:
+        Ref: MediaLiveVPCApplicationSubnet1SubnetCCF12457
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/ApplicationSubnet1/RouteTableAssociation
+  MediaLiveVPCApplicationSubnet1DefaultRouteB792D0BC:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: MediaLiveVPCApplicationSubnet1RouteTableBFDB8F39
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: MediaLiveVPCIngressSubnet1NATGateway415D858D
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/ApplicationSubnet1/DefaultRoute
+  MediaLiveVPCApplicationSubnet2SubnetF1A99A7B:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.2.0/24
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/ApplicationSubnet2
+        - Key: aws-cdk:subnet-name
+          Value: Application
+        - Key: aws-cdk:subnet-type
+          Value: Private
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/ApplicationSubnet2/Subnet
+  MediaLiveVPCApplicationSubnet2RouteTableD5F49360:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/ApplicationSubnet2
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/ApplicationSubnet2/RouteTable
+  MediaLiveVPCApplicationSubnet2RouteTableAssociation15B5BF3B:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: MediaLiveVPCApplicationSubnet2RouteTableD5F49360
+      SubnetId:
+        Ref: MediaLiveVPCApplicationSubnet2SubnetF1A99A7B
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/ApplicationSubnet2/RouteTableAssociation
+  MediaLiveVPCApplicationSubnet2DefaultRoute5DFCB0FE:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: MediaLiveVPCApplicationSubnet2RouteTableD5F49360
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: MediaLiveVPCIngressSubnet1NATGateway415D858D
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/ApplicationSubnet2/DefaultRoute
+  MediaLiveVPCDatabaseSubnet1SubnetA34A7CD6:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.3.0/28
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/DatabaseSubnet1
+        - Key: aws-cdk:subnet-name
+          Value: Database
+        - Key: aws-cdk:subnet-type
+          Value: Isolated
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/DatabaseSubnet1/Subnet
+  MediaLiveVPCDatabaseSubnet1RouteTable519A1C84:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/DatabaseSubnet1
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/DatabaseSubnet1/RouteTable
+  MediaLiveVPCDatabaseSubnet1RouteTableAssociation0217A49A:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: MediaLiveVPCDatabaseSubnet1RouteTable519A1C84
+      SubnetId:
+        Ref: MediaLiveVPCDatabaseSubnet1SubnetA34A7CD6
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/DatabaseSubnet1/RouteTableAssociation
+  MediaLiveVPCDatabaseSubnet2SubnetB58068B1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.3.16/28
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/DatabaseSubnet2
+        - Key: aws-cdk:subnet-name
+          Value: Database
+        - Key: aws-cdk:subnet-type
+          Value: Isolated
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/DatabaseSubnet2/Subnet
+  MediaLiveVPCDatabaseSubnet2RouteTableEB1350AF:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC/DatabaseSubnet2
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/DatabaseSubnet2/RouteTable
+  MediaLiveVPCDatabaseSubnet2RouteTableAssociation59F80B10:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: MediaLiveVPCDatabaseSubnet2RouteTableEB1350AF
+      SubnetId:
+        Ref: MediaLiveVPCDatabaseSubnet2SubnetB58068B1
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/DatabaseSubnet2/RouteTableAssociation
+  MediaLiveVPCIGWBA3C9E6B:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: MediaLiveStack/MediaLiveVPC
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/IGW
+  MediaLiveVPCVPCGW1810A685:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+      InternetGatewayId:
+        Ref: MediaLiveVPCIGWBA3C9E6B
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveVPC/VPCGW
+  MediaLiveCluster601F05A0:
+    Type: AWS::ECS::Cluster
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveCluster/Resource
+  ECSRolePolicy5BF5178C:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ec2:AttachNetworkInterface
+              - ec2:CreateNetworkInterface
+              - ec2:CreateNetworkInterfacePermission
+              - ec2:DeleteNetworkInterface
+              - ec2:DeleteNetworkInterfacePermission
+              - ec2:Describe*
+              - ec2:DetachNetworkInterface
+              - elasticloadbalancing:DeregisterInstancesFromLoadBalancer
+              - elasticloadbalancing:DeregisterTargets
+              - elasticloadbalancing:Describe*
+              - elasticloadbalancing:RegisterInstancesWithLoadBalancer
+              - elasticloadbalancing:RegisterTargets
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: ECSRolePolicy5BF5178C
+      Roles:
+        - Ref: ECSRoleFBF6B4D0
+    Metadata:
+      aws:cdk:path: MediaLiveStack/ECSRolePolicy/Resource
+  ExecutionRolePolicyCB0BB34D:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ecr:GetAuthorizationToken
+              - ecr:BatchCheckLayerAvailability
+              - ecr:GetDownloadUrlForLayer
+              - ecr:BatchGetImage
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: ExecutionRolePolicyCB0BB34D
+      Roles:
+        - Ref: ExecutionRole605A040B
+    Metadata:
+      aws:cdk:path: MediaLiveStack/ExecutionRolePolicy/Resource
+  ECSRoleFBF6B4D0:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                Fn::Join:
+                  - ""
+                  - - ecs.
+                    - Ref: AWS::URLSuffix
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: MediaLiveStack/ECSRole/Resource
+  ExecutionRole605A040B:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                Fn::Join:
+                  - ""
+                  - - ecs-tasks.
+                    - Ref: AWS::URLSuffix
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: MediaLiveStack/ExecutionRole/Resource
+  ExecutionRoleDefaultPolicyA5B92313:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - MediaLiveFargateServiceTaskDefMediaLiveAppLogGroup8749C520
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: ExecutionRoleDefaultPolicyA5B92313
+      Roles:
+        - Ref: ExecutionRole605A040B
+    Metadata:
+      aws:cdk:path: MediaLiveStack/ExecutionRole/DefaultPolicy/Resource
+  MediaLiveFargateServiceLBC12BE486:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      LoadBalancerAttributes: []
+      Scheme: internet-facing
+      SecurityGroups:
+        - Fn::GetAtt:
+            - MediaLiveFargateServiceLBSecurityGroupE9995704
+            - GroupId
+      Subnets:
+        - Ref: MediaLiveVPCIngressSubnet1Subnet6965F66A
+        - Ref: MediaLiveVPCIngressSubnet2Subnet00776CE0
+      Type: application
+    DependsOn:
+      - MediaLiveVPCIngressSubnet1DefaultRoute2626745C
+      - MediaLiveVPCIngressSubnet2DefaultRoute33DA84E8
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/LB/Resource
+  MediaLiveFargateServiceLBSecurityGroupE9995704:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Automatically created Security Group for ELB MediaLiveStackMediaLiveFargateServiceLBDB094F53
+      SecurityGroupEgress: []
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow from anyone on port 80
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/LB/SecurityGroup/Resource
+  MediaLiveFargateServiceLBSecurityGrouptoMediaLiveStackMediaLiveFargateServiceSecurityGroup186A8B433000ACB03658:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId:
+        Fn::GetAtt:
+          - MediaLiveFargateServiceLBSecurityGroupE9995704
+          - GroupId
+      IpProtocol: tcp
+      Description: Load balancer to target
+      DestinationSecurityGroupId:
+        Fn::GetAtt:
+          - MediaLiveFargateServiceSecurityGroupC8AED357
+          - GroupId
+      FromPort: 3000
+      ToPort: 3000
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/LB/SecurityGroup/to MediaLiveStackMediaLiveFargateServiceSecurityGroup186A8B43:3000
+  MediaLiveFargateServiceLBPublicListener980A32C2:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn:
+            Ref: MediaLiveFargateServiceLBPublicListenerECSGroup8A95D2C3
+          Type: forward
+      LoadBalancerArn:
+        Ref: MediaLiveFargateServiceLBC12BE486
+      Port: 80
+      Protocol: HTTP
+      Certificates: []
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/LB/PublicListener/Resource
+  MediaLiveFargateServiceLBPublicListenerECSGroup8A95D2C3:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      TargetGroupAttributes: []
+      Targets: []
+      TargetType: ip
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/LB/PublicListener/ECSGroup/Resource
+  MediaLiveFargateServiceTaskDefTaskRole70119838:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                Fn::Join:
+                  - ""
+                  - - ecs-tasks.
+                    - Ref: AWS::URLSuffix
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/TaskDef/TaskRole/Resource
+  MediaLiveFargateServiceTaskDef81609897:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Environment:
+            - Name: API_URL
+              Value: http://localhost:8080
+          Essential: true
+          Image: 103365315157.dkr.ecr.ap-southeast-2.amazonaws.com/media-live-app:latest
+          Links: []
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: MediaLiveFargateServiceTaskDefMediaLiveAppLogGroup8749C520
+              awslogs-stream-prefix: MediaLiveFargateService
+              awslogs-region:
+                Ref: AWS::Region
+          MountPoints: []
+          Name: MediaLiveApp
+          PortMappings:
+            - ContainerPort: 3000
+              Protocol: tcp
+          Ulimits: []
+          VolumesFrom: []
+      Cpu: "512"
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - ExecutionRole605A040B
+          - Arn
+      Family: MediaLiveStackMediaLiveFargateServiceTaskDef5E7DFED0
+      Memory: "2048"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      TaskRoleArn:
+        Fn::GetAtt:
+          - MediaLiveFargateServiceTaskDefTaskRole70119838
+          - Arn
+      Volumes: []
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/TaskDef/Resource
+  MediaLiveFargateServiceTaskDefMediaLiveAppLogGroup8749C520:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/TaskDef/MediaLiveApp/LogGroup/Resource
+  MediaLiveFargateServiceCF7A49DA:
+    Type: AWS::ECS::Service
+    Properties:
+      TaskDefinition:
+        Ref: MediaLiveFargateServiceTaskDef81609897
+      Cluster:
+        Ref: MediaLiveCluster601F05A0
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 50
+      DesiredCount: 1
+      HealthCheckGracePeriodSeconds: 60
+      LaunchType: FARGATE
+      LoadBalancers:
+        - ContainerName: MediaLiveApp
+          ContainerPort: 3000
+          TargetGroupArn:
+            Ref: MediaLiveFargateServiceLBPublicListenerECSGroup8A95D2C3
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - Fn::GetAtt:
+                - MediaLiveFargateServiceSecurityGroupC8AED357
+                - GroupId
+          Subnets:
+            - Ref: MediaLiveVPCApplicationSubnet1SubnetCCF12457
+            - Ref: MediaLiveVPCApplicationSubnet2SubnetF1A99A7B
+      ServiceRegistries: []
+    DependsOn:
+      - MediaLiveFargateServiceLBPublicListenerECSGroup8A95D2C3
+      - MediaLiveFargateServiceLBPublicListener980A32C2
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/Service/Service
+  MediaLiveFargateServiceSecurityGroupC8AED357:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: MediaLiveStack/MediaLiveFargateService/Service/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress: []
+      VpcId:
+        Ref: MediaLiveVPCFE765DC8
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/Service/SecurityGroup/Resource
+  MediaLiveFargateServiceSecurityGroupfromMediaLiveStackMediaLiveFargateServiceLBSecurityGroupC334275130000787314D:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      IpProtocol: tcp
+      Description: Load balancer to target
+      FromPort: 3000
+      GroupId:
+        Fn::GetAtt:
+          - MediaLiveFargateServiceSecurityGroupC8AED357
+          - GroupId
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - MediaLiveFargateServiceLBSecurityGroupE9995704
+          - GroupId
+      ToPort: 3000
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/Service/SecurityGroup/from MediaLiveStackMediaLiveFargateServiceLBSecurityGroupC3342751:3000
+  MediaLiveFargateServiceTaskCountTarget7AF281A5:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 2
+      MinCapacity: 1
+      ResourceId:
+        Fn::Join:
+          - ""
+          - - service/
+            - Ref: MediaLiveCluster601F05A0
+            - /
+            - Fn::GetAtt:
+                - MediaLiveFargateServiceCF7A49DA
+                - Name
+      RoleARN:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":iam:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - :role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+      ScheduledActions: []
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/Service/TaskCount/Target/Resource
+  MediaLiveFargateServiceTaskCountTargetCpuScalingFBD7110C:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: MediaLiveStackMediaLiveFargateServiceTaskCountTargetCpuScaling5CB0D9B8
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId:
+        Ref: MediaLiveFargateServiceTaskCountTarget7AF281A5
+      TargetTrackingScalingPolicyConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ECSServiceAverageCPUUtilization
+        TargetValue: 50
+    Metadata:
+      aws:cdk:path: MediaLiveStack/MediaLiveFargateService/Service/TaskCount/Target/CpuScaling/Resource
+Outputs:
+  MediaLiveFargateServiceLoadBalancerDNS223025B7:
+    Value:
+      Fn::GetAtt:
+        - MediaLiveFargateServiceLBC12BE486
+        - DNSName
+  LoadBalancerDNS:
+    Value:
+      Fn::GetAtt:
+        - MediaLiveFargateServiceLBC12BE486
+        - DNSName
+
