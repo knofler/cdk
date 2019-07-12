@@ -24,7 +24,6 @@ export class MediaLiveStack extends cdk.Stack {
     */
     const vpc = new ec2.Vpc(this, 'MediaLiveVPC', {
       cidr: '10.1.0.0/21',
-      maxAZs: 3,
       natGateways: 1,
       subnetConfiguration: [
         {
