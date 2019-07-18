@@ -7,7 +7,7 @@ import { SubnetType } from '@aws-cdk/aws-ec2';
 import { Bucket } from '@aws-cdk/aws-s3';
 
 
-export class MediaLiveStack extends cdk.Stack {
+export class AframeworkStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -16,13 +16,13 @@ export class MediaLiveStack extends cdk.Stack {
        * AWS::S3::Bucket
        *
     */
-    const bucket = new Bucket(this, 'MediLivebucket');
+    const bucket = new Bucket(this, ' Aframeworkbucket');
     /**
       *
       * AWS::EC2::VPC
       *
     */
-    const vpc = new ec2.Vpc(this, 'MediaLiveVPC', {
+    const vpc = new ec2.Vpc(this, ' AframeworkVPC', {
       cidr: '10.1.0.0/21',
       natGateways: 1,
       subnetConfiguration: [
@@ -48,7 +48,7 @@ export class MediaLiveStack extends cdk.Stack {
       * AWS::ECS::Cluster
       *
     */
-    const cluster = new ecs.Cluster(this, 'MediaLiveCluster', {
+    const cluster = new ecs.Cluster(this, ' AframeworkCluster', {
       vpc: vpc
     });
     /**
@@ -66,6 +66,15 @@ export class MediaLiveStack extends cdk.Stack {
     // const trustPolicy = new iam.Policy(this, "TrustPolicy");
     // ## Step-4 ::: Add trustStatement to trustPolicy
     // trustPolicy.addStatements(trustStatement);
+
+
+
+    // const medialiveRole = new iam.Role(this, 'MyRole', {
+    //   assumedBy: new iam.CompositePrincipal(
+    //     new iam.ServicePrincipal('ecs.amazonaws.com'),
+    //     new iam.ArnPrincipal('arn:aws:iam::103365315157:role/MediaLiveAccessRole')
+    //   )
+    // });
 
     // ## Step-1 ::: Create ecsServicePolicyStatement
     const ECSRolePolicyStatement = new iam.PolicyStatement({
@@ -91,7 +100,11 @@ export class MediaLiveStack extends cdk.Stack {
     })
     // ## Step-8 ::: Instantiate Role class for trustPolicy and accessPolicy
     const ECSRole = new iam.Role(this, 'ECSRole', {
-      assumedBy: new iam.ServicePrincipal("ecs.amazonaws.com")
+      // assumedBy: new iam.ServicePrincipal("ecs.amazonaws.com")
+      assumedBy: new iam.CompositePrincipal(
+        new iam.ServicePrincipal('ecs.amazonaws.com'),
+        new iam.ArnPrincipal('arn:aws:iam::103365315157:role/MediaLiveAccessRole')
+      )
     });
     const executionRole = new iam.Role(this, 'ExecutionRole', {
       assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com")
@@ -111,7 +124,7 @@ export class MediaLiveStack extends cdk.Stack {
       *
     */
     // Create a load-balanced Fargate service and make it public
-    const fargateService = new ecs_patterns.LoadBalancedFargateService(this, 'MediaLiveFargateService', {
+    const fargateServiceApp = new ecs_patterns.LoadBalancedFargateService(this, ' AframeworkFargateAppService', {
       containerName: "MediaLiveApp",
       containerPort: 3000,
       image: ecs.ContainerImage.fromRegistry("103365315157.dkr.ecr.ap-southeast-2.amazonaws.com/media-live-app:latest"), // Required
@@ -127,6 +140,24 @@ export class MediaLiveStack extends cdk.Stack {
       executionRole: executionRole,
       // taskRole: taskRole
     });
+
+    const fargateServiceApi = new ecs_patterns.LoadBalancedFargateService(this, 'AframeworkFargateApiService', {
+      containerName: "MediaLiveApi",
+      containerPort: 8000,
+      image: ecs.ContainerImage.fromRegistry("103365315157.dkr.ecr.ap-southeast-2.amazonaws.com/media-live-api:latest"), // Required
+      cluster: cluster,  // Required
+      cpu: 512, // Default is 256
+      desiredCount: 1,  // Default is 1,
+      environment: {
+        ['API_URL']: 'http://localhost:8080'
+      },
+      loadBalancerType: ecs_patterns.LoadBalancerType.APPLICATION,
+      memoryLimitMiB: 2048,  // Default is 512
+      publicLoadBalancer: true,  // Default is false
+      executionRole: executionRole,
+      // taskRole: taskRole
+    });
+
     // create a task definition with CloudWatch Logs
     // const logging = new ecs.AwsLogDriver(this, "AppLogging", {
     //   streamPrefix: "myapp",
@@ -153,13 +184,19 @@ export class MediaLiveStack extends cdk.Stack {
       *
     */
     // Setup AutoScaling policy
-    const scaling = fargateService.service.autoScaleTaskCount({ maxCapacity: 2 });
-    scaling.scaleOnCpuUtilization('CpuScaling', {
+    const scalingApp = fargateServiceApp.service.autoScaleTaskCount({ maxCapacity: 2 });
+    scalingApp.scaleOnCpuUtilization('CpuScaling', {
+      targetUtilizationPercent: 50,
+    });
+
+    const scalingApi = fargateServiceApi.service.autoScaleTaskCount({ maxCapacity: 2 });
+    scalingApi.scaleOnCpuUtilization('CpuScaling', {
       targetUtilizationPercent: 50,
     });
 
     // OUTPUT
-    new cdk.CfnOutput(this, 'LoadBalancerDNS', { value: fargateService.loadBalancer.loadBalancerDnsName });
+    new cdk.CfnOutput(this, 'LoadBalancerAppDNS', { value: fargateServiceApp.loadBalancer.loadBalancerDnsName });
+    new cdk.CfnOutput(this, 'LoadBalancerApiDNS', { value: fargateServiceApi.loadBalancer.loadBalancerDnsName });
   }
 }
 
